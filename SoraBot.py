@@ -5,18 +5,22 @@ import vk_api
 from dotenv import load_dotenv
 from vk_api.longpoll import VkLongPoll, VkEventType
 
-# Загрузка токенов из .env
+# 🔐 Загрузка переменных из .env или из окружения Railway
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 vk_token = os.getenv("VK_API_TOKEN")
 assistant_id = os.getenv("OPENAI_ASSISTANT_ID")
 
-# Подключение к VK
+# 🧱 Защита от запуска без переменных
+if not vk_token or not assistant_id or not openai.api_key:
+    raise ValueError("❌ Переменные окружения не заданы. Проверь Railway → Variables.")
+
+# 🤖 Подключение к VK
 vk_session = vk_api.VkApi(token=vk_token)
 vk = vk_session.get_api()
 longpoll = VkLongPoll(vk_session)
 
-# Память по пользователям
+# 🧠 Память по пользователям
 user_last_message_time = {}
 user_threads = {}  # 🧵 Сохраняем thread_id для каждого user_id
 RESPONSE_COOLDOWN = 5  # секунд между ответами
@@ -30,7 +34,7 @@ def send_vk_message(user_id, text):
 
 print("🟢 Бот запущен и слушает ВКонтакте...")
 
-# Основной цикл событий
+# 🔁 Основной цикл событий
 for event in longpoll.listen():
     if event.type == VkEventType.MESSAGE_NEW and event.to_me:
         user_id = event.user_id
