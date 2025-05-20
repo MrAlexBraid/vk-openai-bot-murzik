@@ -7,6 +7,16 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 client = OpenAI()
 vk_token     = os.getenv("VK_API_TOKEN")
 assistant_id = os.getenv("OPENAI_ASSISTANT_ID")
+# ВПИШИ сюда VK ID Максима (например, 12345678)
+MAXIM_ID     = 12345678
+
+# Фразы, по которым звать Максима (дополняй по желанию)
+PING_PHRASES = [
+    "позови максима", "свяжись с максимом", "пусть напишет максим",
+    "зови владельца", "мне нужен максим", "максим, ответь",
+    "переведи на оператора", "живой человек", "консультант",
+    "максим, напиши мне"
+]
 
 if not vk_token or not assistant_id:
     raise ValueError("❌ Нет VK_API_TOKEN или OPENAI_ASSISTANT_ID в переменных Railway")
@@ -47,6 +57,20 @@ for event in longpoll.listen():
             continue
         user_last_message_time[user_id] = now
 
+        # ——— Логика пинга Максима ———
+        if any(phrase in user_msg.lower() for phrase in PING_PHRASES):
+            send_vk_message(
+                MAXIM_ID,
+                f"Вас зовут в чате! User: vk.com/id240725015\n\nСообщение: {user_msg}"
+            )
+            send_vk_message(
+                user_id,
+                "Максиму отправлено уведомление, он скоро напишет Вам. Сессия завершена. Чтобы снова начать, напиши 'Мурзик'."
+            )
+            if user_id in active_users:
+                del active_users[user_id]
+            continue
+
         # ——— Логика активации ———
         if is_active(user_id):
             # “СТОП” завершает сессию
@@ -59,9 +83,8 @@ for event in longpoll.listen():
         else:
             if "мурзик" in user_msg.lower():
                 active_users[user_id] = now
-                send_vk_message(user_id, "Мурзик активирован! Теперь отвечаю на любые сообщения. Чтобы завершить — напиши 'Стоп' или 'Пока'.")
+                send_vk_message(user_id, "Мурзик активирован! Теперь отвечаю на Ваши сообщения. Чтобы завершить — напиши 'Стоп' или 'Пока'.")
             else:
-                # Если не активен и не написал ключевое слово — не реагируем
                 continue
 
         try:
