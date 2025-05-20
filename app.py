@@ -61,7 +61,7 @@ for event in longpoll.listen():
         if any(phrase in user_msg.lower() for phrase in PING_PHRASES):
             send_vk_message(
                 MAXIM_ID,
-                f"Вас зовут в чате! User: vk.com/id240725015\n\nСообщение: {user_msg}"
+                f"Вас зовут в чате! User: vk.com/id174129176\n\nСообщение: {user_msg}"
             )
             send_vk_message(
                 user_id,
