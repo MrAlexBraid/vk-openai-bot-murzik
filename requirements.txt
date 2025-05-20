@@ -1,3 +1,4 @@
 vk_api==11.9.7
 openai==1.23.2
 httpx==0.24.1
+python-telegram-bot==20.7
